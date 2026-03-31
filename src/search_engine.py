@@ -1,15 +1,23 @@
 """
-Mock search engine.
+Mock search engine implementation.
 
-Replace `run_search` with a real search backend (e.g. Elasticsearch,
-Typesense, Meilisearch, or a vector DB) for production use.
+In production, replace this with a real search backend such as:
+- Elasticsearch (distributed search)
+- Typesense (fast, typo-tolerant)
+- Meilisearch (user-friendly)
+- Vector database + embeddings (semantic search)
+- PostgreSQL with full-text search (simple, integrated)
 """
 
+import logging
 from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class SearchResult:
+    """A single search result."""
     title: str
     url: str
     snippet: str
@@ -47,15 +55,45 @@ MOCK_RESULTS = [
         snippet="Uvicorn is a minimal ASGI server implementation built on uvloop and httptools.",
         score=0.84,
     ),
+    SearchResult(
+        title="RESTful API Best Practices",
+        url="https://restfulapi.net/",
+        snippet="Learn best practices for building RESTful APIs that scale.",
+        score=0.82,
+    ),
+    SearchResult(
+        title="OpenAPI and Swagger Documentation",
+        url="https://swagger.io/specification/",
+        snippet="OpenAPI is the industry standard for documenting REST APIs.",
+        score=0.79,
+    ),
 ]
 
 
 def run_search(query: str, limit: int = 10) -> list[SearchResult]:
     """
-    Return mock search results for *query*, up to *limit* items.
+    Return mock search results for the given query.
 
-    In production, replace this with a real search engine call.
+    Args:
+        query: Search query string (unused in mock, but here for real implementations)
+        limit: Maximum number of results to return
+
+    Returns:
+        A list of SearchResult objects, up to *limit* items
+
+    Note:
+        In production, this would:
+        1. Parse the query
+        2. Execute against a real search backend
+        3. Rank results by relevance
+        4. Return the top-k results
     """
+    limit = min(limit, len(MOCK_RESULTS))
+
+    # In a real implementation, you would:
+    # - tokenize and process the query
+    # - execute against a search backend
+    # - rank by relevance score
     results = [
         SearchResult(
             title=r.title,
@@ -65,4 +103,6 @@ def run_search(query: str, limit: int = 10) -> list[SearchResult]:
         )
         for i, r in enumerate(MOCK_RESULTS)
     ]
+
+    logger.debug(f"Search: query='{query}', returning {len(results[:limit])} results")
     return results[:limit]

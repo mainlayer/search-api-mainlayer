@@ -4,12 +4,17 @@ Tier and quota management via Mainlayer subscriptions.
 Tiers:
   free   — 10 requests per day, no token required
   paid   — unlimited requests, requires a valid Mainlayer token
+
+In production, replace the in-memory quota tracker with Redis or a database.
 """
 
+import logging
 import os
 import time
 from collections import defaultdict
 from mainlayer import MainlayerClient
+
+logger = logging.getLogger(__name__)
 
 FREE_DAILY_LIMIT = 10
 
@@ -55,7 +60,24 @@ def check_free_quota(identifier: str) -> tuple[bool, int]:
 
 
 async def verify_paid_access(resource_id: str, token: str) -> bool:
-    """Return True if *token* grants paid access to *resource_id*."""
+    """
+    Verify that the provided token grants access to the resource.
+
+    Args:
+        resource_id: The resource identifier to check access for
+        token: The Mainlayer payment token
+
+    Returns:
+        True if authorized, False otherwise
+
+    Raises:
+        Exception: If the verification request fails
+    """
     client = get_client()
-    access = await client.resources.verify_access(resource_id, token)
-    return access.authorized
+    try:
+        access = await client.resources.verify_access(resource_id, token)
+        logger.debug(f"Token verification: authorized={access.authorized}")
+        return access.authorized
+    except Exception as exc:
+        logger.error(f"Token verification failed: {exc}")
+        raise
