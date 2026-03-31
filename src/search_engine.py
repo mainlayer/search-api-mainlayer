@@ -25,7 +25,7 @@ MOCK_RESULTS = [
     ),
     SearchResult(
         title="Mainlayer Payment Infrastructure for APIs",
-        url="https://mainlayer.fr/docs",
+        url="https://docs.mainlayer.fr",
         snippet="Mainlayer lets you add per-call or subscription billing to any API in minutes.",
         score=0.95,
     ),
